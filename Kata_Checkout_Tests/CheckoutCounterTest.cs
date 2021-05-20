@@ -80,5 +80,117 @@ namespace Kata_Checkout_Tests
 
             Assert.Throws<ArgumentException>(() => testCounter.AddMarkDown(name1, markDown1));
         }
+
+        [TestCase("apple", 25, "apple", 10)]
+        public void SpecialMarkDown_DuplicateException(string name1, double markDown1, string name2, double markDown2)
+        {
+            ItemList testList = new ItemList();
+            CheckoutCounter testCounter = new CheckoutCounter();
+
+            testCounter.AddMarkDown(name1, markDown1);
+            Assert.Throws<ArgumentException>(() => testCounter.AddMarkDown(name2, markDown2));
+        }
+
+        [TestCase("", 1, 1, 100)]
+        [TestCase("apple", -1, 1, 1)]
+        [TestCase("apple", 1, -1, 1)]
+        [TestCase("apple", 1, 1, -1)]
+        [TestCase("apple", 1, 1, -1, 3)]
+        public void AddBOGO_Exception(string name1, double buyCount1, double getCount1, double markDown1, double buyLimit1 = 0)
+        {
+            ItemList testList = new ItemList();
+            CheckoutCounter testCounter = new CheckoutCounter();
+
+            Assert.Throws<ArgumentException>(() => testCounter.AddBOGO(name1, buyCount1, getCount1, markDown1, buyLimit1));
+        }
+
+        [TestCase("apple", 1, 1, 100, 3)]
+        public void AddBOGO_DuplicateException(string name1, double buyCount1, double getCount1, double markDown1, double buyLimit1 = 0)
+        {
+            ItemList testList = new ItemList();
+            CheckoutCounter testCounter = new CheckoutCounter();
+
+            testCounter.AddBOGO(name1, buyCount1, getCount1, markDown1, buyLimit1);
+            Assert.Throws<ArgumentException>(() => testCounter.AddBOGO(name1, buyCount1, getCount1, markDown1, buyLimit1));
+        }
+
+        [TestCase("", 1, 1)]
+        [TestCase("apple", -1, 1)]
+        [TestCase("apple", 1, -1)]
+        [TestCase("apple", 1, 1, -1)]
+        public void AddNforX_Exception(string name1, double getCount1, double getPrice1, double buyLimit1 = 0)
+        {
+            ItemList testList = new ItemList();
+            CheckoutCounter testCounter = new CheckoutCounter();
+
+            Assert.Throws<ArgumentException>(() => testCounter.AddNforX(name1, getCount1, getPrice1, buyLimit1));
+        }
+
+        [TestCase("apple", 1, 1, 3)]
+        public void AddNforX_DuplicateException(string name1, double getCount1, double getPrice1, double buyLimit1 = 0)
+        {
+            ItemList testList = new ItemList();
+            CheckoutCounter testCounter = new CheckoutCounter();
+
+            testCounter.AddBOGO(name1, getCount1, getPrice1, buyLimit1);
+            Assert.Throws<ArgumentException>(() => testCounter.AddBOGO(name1, getCount1, getPrice1, buyLimit1));
+        }
+
+        [TestCase("apple", 50)]
+        public void RemoveMarkDown_Success(string name1, double markDown1)
+        {
+            ItemList testList = new ItemList();
+            CheckoutCounter testCounter = new CheckoutCounter();
+
+            testCounter.AddMarkDown(name1, markDown1);
+            testCounter.RemoveMarkDown(name1);
+        }
+
+        [TestCase("apple")]
+        public void RemoveMarkDown_Exception(string name1)
+        {
+            ItemList testList = new ItemList();
+            CheckoutCounter testCounter = new CheckoutCounter();
+
+            Assert.Throws<ArgumentException>(() => testCounter.RemoveMarkDown(name1));
+        }
+
+        [TestCase("apple", 2, 1, 50)]
+        public void RemoveBOGO_Success(string name1, double buyCount1, double getCount1, double markDown1)
+        {
+            ItemList testList = new ItemList();
+            CheckoutCounter testCounter = new CheckoutCounter();
+
+            testCounter.AddBOGO(name1, buyCount1, getCount1, markDown1);
+            testCounter.RemoveBOGO(name1);
+        }
+
+        [TestCase("apple")]
+        public void RemoveBOGO_Exception(string name1)
+        {
+            ItemList testList = new ItemList();
+            CheckoutCounter testCounter = new CheckoutCounter();
+
+            Assert.Throws<ArgumentException>(() => testCounter.RemoveBOGO(name1));
+        }
+
+        [TestCase("apple", 2, 1)]
+        public void RemoveNforX_Success(string name1, double getCount1, double getPrice1)
+        {
+            ItemList testList = new ItemList();
+            CheckoutCounter testCounter = new CheckoutCounter();
+
+            testCounter.AddNforX(name1, getCount1, getPrice1);
+            testCounter.RemoveNforX(name1);
+        }
+
+        [TestCase("apple")]
+        public void RemoveNforX_Exception(string name1)
+        {
+            ItemList testList = new ItemList();
+            CheckoutCounter testCounter = new CheckoutCounter();
+
+            Assert.Throws<ArgumentException>(() => testCounter.RemoveNforX(name1));
+        }
     }
 }

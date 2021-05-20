@@ -37,5 +37,24 @@ namespace Kata_Checkout
             else if (buyLimit1 < 0)
                 throw new ArgumentException($"Buy limit can not be negative.");
         }
+
+        public string Name
+        {
+            get { return name; }
+        }
+
+        public double GetCount
+        {
+            get { return getCount; }
+        }
+
+        public double GetPrice
+        {
+            get { return getPrice; }
+        }
+        public double UsedCount
+        {
+            get { return usedCount; }
+        }
     }
 }

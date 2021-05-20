@@ -44,6 +44,10 @@ namespace Kata_Checkout
                 throw new ArgumentException($"Buy limit can not be negative.");
         }
 
+        public string Name
+        {
+            get { return name; }
+        }
         public double BuyCount
         {
             get { return buyCount;  }
