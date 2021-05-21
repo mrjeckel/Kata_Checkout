@@ -10,8 +10,8 @@ namespace Kata_Checkout
     {
         decimal customerTotal = 0;
         Dictionary<string, double> specialMarkDown = new Dictionary<string, double>();
-        List<BOGO> specialBOGO = new List<BOGO>();
-        List<NforX> specialNforX = new List<NforX>();
+        Dictionary<string, BOGO> specialBOGO = new Dictionary<string, BOGO>();
+        Dictionary<string, NforX> specialNforX = new Dictionary<string, NforX>();
 
         public void AddItemValue(string name, ItemList inputList, double weight = 0)
         {
@@ -19,11 +19,11 @@ namespace Kata_Checkout
             {
                 if (specialMarkDown.ContainsKey(name))
                 {
-                    decimal temp = Convert.ToDecimal((specialMarkDown[name] / 100));
-                    customerTotal += Convert.ToDecimal(inputList.GetValue(name, weight) * temp);
+                    double discount = 1 - (specialMarkDown[name] / 100);
+                    customerTotal += inputList.GetValue(name, weight, discount);
                 }
                 else
-                    customerTotal += Convert.ToDecimal(inputList.GetValue(name, weight));
+                    customerTotal += inputList.GetValue(name, weight);
             }
                 
             else
@@ -37,11 +37,11 @@ namespace Kata_Checkout
             {
                 if (specialMarkDown.ContainsKey(name))
                 {
-                    decimal temp = Convert.ToDecimal((specialMarkDown[name] / 100));
-                    customerTotal -= Convert.ToDecimal(inputList.GetValue(name, weight) * temp);
+                    double discount = 1 - (specialMarkDown[name] / 100);
+                    customerTotal -= inputList.GetValue(name, weight, discount);
                 }
                 else
-                    customerTotal -= Convert.ToDecimal(inputList.GetValue(name, weight));
+                    customerTotal -= inputList.GetValue(name, weight);
             }
             else
                 throw new KeyNotFoundException($"{name} was not found in inventory.");
@@ -56,7 +56,7 @@ namespace Kata_Checkout
             else if (markDownIn <= 0)
                 throw new ArgumentException($"Markdown value must be greater than zero.");
             else if (specialMarkDown.ContainsKey(nameIn))
-                throw new ArgumentException($"A markdown for {nameIn} already exists. Delete this entry before creating a new one.");
+                throw new ArgumentException($"A markdown for {nameIn} already exists. Remove this entry before creating a new one.");
 
             specialMarkDown.Add(nameIn, markDownIn);
         }
@@ -75,14 +75,11 @@ namespace Kata_Checkout
                 throw new ArgumentException($"Markdown value must be greater than zero.");      
             else if (buyLimitIn < 0)
                 throw new ArgumentException($"Buy limit can not be negative.");
-            foreach (BOGO x in specialBOGO)
-            {
-                if ((x.Name) == nameIn)
-                    throw new ArgumentException($"A BOGO for {nameIn} already exists. Delete this entry before creating a new one.");
 
-            }
+                if (specialBOGO.ContainsKey(nameIn))
+                    throw new ArgumentException($"A BOGO for {nameIn} already exists. Remove this entry before creating a new one.");
 
-            specialBOGO.Add(new BOGO(nameIn, buyCountIn, getCountIn, markDownIn, buyLimitIn));
+            specialBOGO.Add(nameIn, new BOGO(nameIn, buyCountIn, getCountIn, markDownIn, buyLimitIn));
         }
 
         public void AddNforX(string nameIn, double getCountIn, double getPriceIn, double buyLimitIn = 0)
@@ -97,13 +94,11 @@ namespace Kata_Checkout
                 throw new ArgumentException($"Price must be greater than zero.");
             else if (buyLimitIn < 0)
                 throw new ArgumentException($"Buy limit can not be negative.");
-            foreach (NforX x in specialNforX)
-            {
-                if ((x.Name) == nameIn)
-                    throw new ArgumentException($"A BOGO for {nameIn} already exists. Delete this entry before creating a new one.");
-            }
 
-            specialNforX.Add(new NforX(nameIn, getCountIn, getPriceIn, buyLimitIn));
+                if (specialNforX.ContainsKey(nameIn))
+                    throw new ArgumentException($"A BOGO for {nameIn} already exists. Remove this entry before creating a new one.");
+
+            specialNforX.Add(nameIn, new NforX(nameIn, getCountIn, getPriceIn, buyLimitIn));
         }
 
         public void RemoveMarkDown(string nameIn)
@@ -116,30 +111,18 @@ namespace Kata_Checkout
 
         public void RemoveBOGO(string nameIn)
         {
-            for (int i  = 0; i < specialBOGO.Count; i++)
-            {
-                if (nameIn == specialBOGO[i].Name)
-                {
-                    specialBOGO.RemoveAt(i);
-                    return;
-                }
-            }
-
-            throw new ArgumentException($"No BOGO was found for {nameIn}.");
+            if (specialBOGO.ContainsKey(nameIn))
+                    specialBOGO.Remove(nameIn);
+            else
+                throw new ArgumentException($"No BOGO was found for {nameIn}.");
         }
 
         public void RemoveNforX(string nameIn)
         {
-            for (int i = 0; i < specialNforX.Count; i++)
-            {
-                if (nameIn == specialNforX[i].Name)
-                {
-                    specialNforX.RemoveAt(i);
-                    return;
-                }
-            }
-
-            throw new ArgumentException($"No NforX was found for {nameIn}.");
+            if (specialNforX.ContainsKey(nameIn))
+                    specialNforX.Remove(nameIn);
+            else
+                throw new ArgumentException($"No NforX was found for {nameIn}.");
         }
 
         public decimal CustomerTotal
