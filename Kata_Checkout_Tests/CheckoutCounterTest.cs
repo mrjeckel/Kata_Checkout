@@ -192,5 +192,55 @@ namespace Kata_Checkout_Tests
 
             Assert.Throws<ArgumentException>(() => testCounter.RemoveNforX(name1));
         }
+
+        [TestCase("apple", 1.00, "orange", 1.50, 2.50)]
+        [TestCase("apple", 0.01, "orange", 0.01, 0.02)]
+        [TestCase("apple", 0.70, "orange", 21.30, 22.00)]
+        [TestCase("apple", 100.67, "orange", 406.01, 506.68)]
+        [TestCase("apple", 1006.66, "orange", 2003.34, 3010)]
+        [TestCase("apple", 1.00, "orange", 1.50, 6.50, true, 5)]
+        [TestCase("apple", 1006.66, "orange", 2003.34, 7036.64, true, 5)]
+        [TestCase("apple", 1.00, "orange", 1.50, 12.50, true, 5, true, 5)]
+        [TestCase("apple", 1006.66, "orange", 2003.34, 15050, true, 5, true, 5)]
+        public void AddItemValue_MarkDown_Success(string name1, double val1, string name2, double val2, double sum,
+            bool weighted1 = false, double weight1 = 0, bool weighted2 = false, double weight2 = 0)
+        {
+            ItemList testList = new ItemList();
+            CheckoutCounter testCounter = new CheckoutCounter();
+
+            testCounter.AddMarkDown("apple", 50);
+
+            testList.AddItem(name1, val1, weighted1);
+            testList.AddItem(name2, val2, weighted2);
+            testCounter.AddItemValue(name1, testList, weight1);
+            testCounter.AddItemValue(name1, testList, weight1);
+            testCounter.AddItemValue(name2, testList, weight2);
+
+            Assert.AreEqual(sum, testCounter.CustomerTotal);
+        }
+
+        [TestCase("apple", 1.00, "orange", 1.50, "banana", 2.50, 4.50)]
+        [TestCase("apple", 1.00, "orange", 1.50, "banana", 2.50, 5.50, true, 3)]
+        [TestCase("apple", 1.00, "orange", 1.50, "banana", 2.50, 9.50, true, 3, true, 2, true, 2)]
+        public void SubtractItemValue_MarkDown_Success(string name1, double val1, string name2, double val2, string name3, double val3, double sum,
+            bool weighted1 = false, double weight1 = 0, bool weighted2 = false, double weight2 = 0, bool weighted3 = false, double weight3 = 0)
+        {
+            ItemList testList = new ItemList();
+            CheckoutCounter testCounter = new CheckoutCounter();
+
+            testCounter.AddMarkDown("apple", 50);
+
+            testList.AddItem(name1, val1, weighted1);
+            testList.AddItem(name2, val2, weighted2);
+            testList.AddItem(name3, val3, weighted3);
+            testCounter.AddItemValue(name1, testList, weight1);
+            testCounter.AddItemValue(name1, testList, weight1);
+            testCounter.AddItemValue(name2, testList, weight2);
+            testCounter.AddItemValue(name3, testList, weight3);
+            testCounter.SubtractItemValue(name1, testList, weight1);
+
+            Assert.AreEqual(sum, testCounter.CustomerTotal);
+        }
+
     }
 }

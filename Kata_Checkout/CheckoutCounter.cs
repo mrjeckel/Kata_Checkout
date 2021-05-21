@@ -16,7 +16,16 @@ namespace Kata_Checkout
         public void AddItemValue(string name, ItemList inputList, double weight = 0)
         {
             if (inputList.Contains(name))
-                customerTotal += Convert.ToDecimal(inputList.GetValue(name, weight));
+            {
+                if (specialMarkDown.ContainsKey(name))
+                {
+                    decimal temp = Convert.ToDecimal((specialMarkDown[name] / 100));
+                    customerTotal += Convert.ToDecimal(inputList.GetValue(name, weight) * temp);
+                }
+                else
+                    customerTotal += Convert.ToDecimal(inputList.GetValue(name, weight));
+            }
+                
             else
                 throw new KeyNotFoundException($"{name} was not found in inventory.");
                 
@@ -25,7 +34,15 @@ namespace Kata_Checkout
         public void SubtractItemValue(string name, ItemList inputList, double weight = 0)
         {
             if (inputList.Contains(name))
-                customerTotal -= Convert.ToDecimal(inputList.GetValue(name, weight));
+            {
+                if (specialMarkDown.ContainsKey(name))
+                {
+                    decimal temp = Convert.ToDecimal((specialMarkDown[name] / 100));
+                    customerTotal -= Convert.ToDecimal(inputList.GetValue(name, weight) * temp);
+                }
+                else
+                    customerTotal -= Convert.ToDecimal(inputList.GetValue(name, weight));
+            }
             else
                 throw new KeyNotFoundException($"{name} was not found in inventory.");
         }
