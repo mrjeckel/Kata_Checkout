@@ -266,8 +266,16 @@ namespace Kata_Checkout_Tests
             Assert.AreEqual(sum, testCounter.CustomerTotal);
         }
 
-        [TestCase("apple", 1.00, "orange", 1.50, 4.00, 1, 2, 50)]
-        [TestCase("apple", 1.00, "orange", 1.50, 6.50, 2, 4, 50)]
+        [TestCase("apple", 1.00, "orange", 1.50, 3.75, 1, 2, 75)]
+        [TestCase("apple", 1.00, "orange", 1.50, 6.00, 2, 4, 75)]
+        [TestCase("apple", 1.00, "orange", 1.50, 15.00, 2, 4, 75, true, 3)]
+        [TestCase("apple", 1.00, "orange", 1.50, 21.00, 2, 4, 75, true, 3, true, 5)]
+        [TestCase("apple", 100.67, "orange", 406.01, 1030.17, 3, 5, 60)]
+        [TestCase("apple", 100.67, "orange", 406.01, 2278.49, 3, 5, 60, true, 3)]
+        [TestCase("apple", 100.67, "orange", 406.01, 3902.53, 3, 5, 60, true, 3, true, 5)]
+        [TestCase("apple", 1006.66, "orange", 2003.34, 5224.66, 2, 2, 40)]
+        [TestCase("apple", 1006.66, "orange", 2003.34, 8445.98, 2, 2, 40, true, 2)]
+        [TestCase("apple", 1006.66, "orange", 2003.34, 12452.66, 2, 2, 40, true, 2, true, 3)]
         public void AddItemValue_BOGO_Success(string name1, double val1, string name2, double val2, double sum, double getCountIn, double buyCountIn,
             double markDownIn, bool weighted1 = false, double weight1 = 0, bool weighted2 = false, double weight2 = 0)
         {
@@ -282,13 +290,48 @@ namespace Kata_Checkout_Tests
             for (int i = 0; i < getCountIn+buyCountIn; i++)
             {
                 testCounter.AddItemValue(name1, testList, weight1);
-                Console.WriteLine(testCounter.CustomerTotal);
             }
             
             testCounter.AddItemValue(name2, testList, weight2);
-            Console.WriteLine(testCounter.CustomerTotal);
 
             Assert.AreEqual(sum, testCounter.CustomerTotal);
+        }
+
+        [TestCase("apple", 1.00, "orange", 1.50, "banana", 2.50, 6.00, 1, 2, 75)]
+        [TestCase("apple", 1.00, "orange", 1.50, "banana", 2.50, 8.25, 2, 4, 75, 3)]
+        [TestCase("apple", 1006.66, "orange", 2003.34, "banana", 2.50, 7240.48, 2, 2, 40, 3, true, 2)]
+        [TestCase("apple", 1006.66, "orange", 2003.34, "banana", 2.50, 11247.16, 2, 2, 40, 3, true, 2, true, 3)]
+        public void SubtractItemValue_BOGO_Success(string name1, double val1, string name2, double val2, string name3, double val3, double sum,
+                double getCountIn, double buyCountIn, double markDownIn, int iterations = 1, bool weighted1 = false, double weight1 = 0, bool weighted2 = false, 
+                double weight2 = 0, bool weighted3 = false, double weight3 = 0)
+        {
+            ItemList testList = new ItemList();
+            CheckoutCounter testCounter = new CheckoutCounter();
+
+            testCounter.AddBOGO(name1, buyCountIn, getCountIn, markDownIn);
+
+            testList.AddItem(name1, val1, weighted1);
+            testList.AddItem(name2, val2, weighted2);
+            testList.AddItem(name3, val3, weighted3);
+
+            //add items until we have (iterations) full specials in our basket
+            for (int i = 0; i < (getCountIn + buyCountIn) * iterations; i++)
+            {
+                testCounter.AddItemValue(name1, testList, weight1);
+            }
+
+            //remove items until total added for special is 1 shy of buyCount + getCount (1 full special - 1 item)
+            for (double i = (getCountIn + buyCountIn) * iterations; i > (getCountIn + buyCountIn) - 1; i--)
+            {
+                testCounter.SubtractItemValue(name1, testList, weight1);
+            }
+
+            testCounter.AddItemValue(name2, testList, weight2);
+            testCounter.AddItemValue(name3, testList, weight3);
+
+
+            Assert.AreEqual(sum, testCounter.CustomerTotal);
+
         }
 
     }

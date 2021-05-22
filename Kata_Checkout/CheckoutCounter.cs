@@ -24,13 +24,15 @@ namespace Kata_Checkout
                 }
                 else if (specialBOGO.ContainsKey(name))
                 {
-                    if (((specialBOGO[name].UsedCount % specialBOGO[name].BuyCount) < specialBOGO[name].GetCount)
-                        && (specialBOGO[name].UsedCount >= specialBOGO[name].BuyCount))
+                    //Console.WriteLine($"used:{specialBOGO[name].UsedCount}, buy:{specialBOGO[name].BuyCount}, get:{specialBOGO[name].GetCount}, spec:{specialBOGO[name].SpecialCount}");
+
+                    //Compare the special count against floored (used/buy)*get. This tells you how many marked down items you should have at any given point.
+                    if (specialBOGO[name].SpecialCount < (Math.Floor((specialBOGO[name].UsedCount/specialBOGO[name].BuyCount))*specialBOGO[name].GetCount))
                     {
                         double discount = 1 - (specialBOGO[name].MarkDown / 100);
                         customerTotal += inputList.GetValue(name, weight, discount);
 
-                        specialBOGO[name].Inc();
+                        specialBOGO[name].SpecInc();
                     }
                     else
                     {
@@ -55,6 +57,23 @@ namespace Kata_Checkout
                 {
                     double discount = 1 - (specialMarkDown[name] / 100);
                     customerTotal -= inputList.GetValue(name, weight, discount);
+                }
+                else if (specialBOGO.ContainsKey(name))
+                {
+
+                    Console.WriteLine($"used:{specialBOGO[name].UsedCount}, buy:{specialBOGO[name].BuyCount}, get:{specialBOGO[name].GetCount}, special:{specialBOGO[name].SpecialCount}");
+                    if (specialBOGO[name].SpecialCount > (Math.Floor((specialBOGO[name].UsedCount - 1) / specialBOGO[name].BuyCount) * specialBOGO[name].GetCount))
+                    {
+                        double discount = 1 - (specialBOGO[name].MarkDown / 100);
+                        customerTotal -= inputList.GetValue(name, weight, discount);
+
+                        specialBOGO[name].SpecDec();
+                    }
+                    else
+                    {
+                        customerTotal -= inputList.GetValue(name, weight);
+                        specialBOGO[name].Dec();
+                    }
                 }
                 else
                     customerTotal -= inputList.GetValue(name, weight);

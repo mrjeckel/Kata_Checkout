@@ -14,6 +14,7 @@ namespace Kata_Checkout
         double markDown = 0;
         double buyLimit = 0;
         int usedCount = 0;
+        int specialCount = 0;
 
         public BOGO(string name1, double buyCount1, double getCount1, double markDown1, double buyLimit1 = 0)
         {
@@ -54,6 +55,16 @@ namespace Kata_Checkout
             usedCount--;
         }
 
+        public void SpecInc()
+        {
+            specialCount++;
+        }
+
+        public void SpecDec()
+        {
+            specialCount--;
+        }
+
         public string Name
         {
             get { return name; }
@@ -72,9 +83,13 @@ namespace Kata_Checkout
         {
             get { return markDown; }
         }
-        public double UsedCount
+        public int UsedCount
         {
             get { return usedCount; }
+        }
+        public int SpecialCount
+        {
+            get { return specialCount; }
         }
 
     }
