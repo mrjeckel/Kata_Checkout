@@ -22,6 +22,22 @@ namespace Kata_Checkout
                     double discount = 1 - (specialMarkDown[name] / 100);
                     customerTotal += inputList.GetValue(name, weight, discount);
                 }
+                else if (specialBOGO.ContainsKey(name))
+                {
+                    if (((specialBOGO[name].UsedCount % specialBOGO[name].BuyCount) < specialBOGO[name].GetCount)
+                        && (specialBOGO[name].UsedCount >= specialBOGO[name].BuyCount))
+                    {
+                        double discount = 1 - (specialBOGO[name].MarkDown / 100);
+                        customerTotal += inputList.GetValue(name, weight, discount);
+
+                        specialBOGO[name].Inc();
+                    }
+                    else
+                    {
+                        customerTotal += inputList.GetValue(name, weight);
+                        specialBOGO[name].Inc();
+                    }
+                }
                 else
                     customerTotal += inputList.GetValue(name, weight);
             }
@@ -57,48 +73,38 @@ namespace Kata_Checkout
                 throw new ArgumentException($"Markdown value must be greater than zero.");
             else if (specialMarkDown.ContainsKey(nameIn))
                 throw new ArgumentException($"A markdown for {nameIn} already exists. Remove this entry before creating a new one.");
-
-            specialMarkDown.Add(nameIn, markDownIn);
+            else if (specialBOGO.ContainsKey(nameIn))
+                throw new ArgumentException($"A BOGO for {nameIn} already exists. Remove this entry before creating a new one.");
+            else if (specialMarkDown.ContainsKey(nameIn))
+                throw new ArgumentException($"A mark-down for {nameIn} already exists. Remove this entry before creating a new one.");
+            else if (specialNforX.ContainsKey(nameIn))
+                throw new ArgumentException($"An N for X special for {nameIn} already exists. Remove this entry before creating a new one.");
+            else
+                specialMarkDown.Add(nameIn, markDownIn);
         }
 
         public void AddBOGO(string nameIn, double buyCountIn, double getCountIn, double markDownIn, double buyLimitIn = 0)
         {
-            nameIn.Trim();
-
-            if (String.IsNullOrEmpty(nameIn))
-                throw new ArgumentException($"Name can not be a null or empty value.");
-            else if (buyCountIn <= 0)
-                throw new ArgumentException($"Number of bought items in special must be greater than zero.");
-            else if (getCountIn <= 0)
-                throw new ArgumentException($"Number of marked-down items in special must be greater than zero.");
-            else if (markDownIn <= 0)
-                throw new ArgumentException($"Markdown value must be greater than zero.");      
-            else if (buyLimitIn < 0)
-                throw new ArgumentException($"Buy limit can not be negative.");
-
                 if (specialBOGO.ContainsKey(nameIn))
                     throw new ArgumentException($"A BOGO for {nameIn} already exists. Remove this entry before creating a new one.");
-
-            specialBOGO.Add(nameIn, new BOGO(nameIn, buyCountIn, getCountIn, markDownIn, buyLimitIn));
+                else if (specialMarkDown.ContainsKey(nameIn))
+                    throw new ArgumentException($"A mark-down for {nameIn} already exists. Remove this entry before creating a new one.");
+                else if (specialNforX.ContainsKey(nameIn))
+                    throw new ArgumentException($"An N for X special for {nameIn} already exists. Remove this entry before creating a new one.");
+                else
+                    specialBOGO.Add(nameIn, new BOGO(nameIn, buyCountIn, getCountIn, markDownIn, buyLimitIn));
         }
 
         public void AddNforX(string nameIn, double getCountIn, double getPriceIn, double buyLimitIn = 0)
         {
-            nameIn.Trim();
-
-            if (String.IsNullOrEmpty(nameIn))
-                throw new ArgumentException($"Name can not be a null or empty value.");
-            else if (getCountIn <= 0)
-                throw new ArgumentException($"Number of marked-down items in special must be greater than zero.");
-            else if (getPriceIn <= 0)
-                throw new ArgumentException($"Price must be greater than zero.");
-            else if (buyLimitIn < 0)
-                throw new ArgumentException($"Buy limit can not be negative.");
-
-                if (specialNforX.ContainsKey(nameIn))
-                    throw new ArgumentException($"A BOGO for {nameIn} already exists. Remove this entry before creating a new one.");
-
-            specialNforX.Add(nameIn, new NforX(nameIn, getCountIn, getPriceIn, buyLimitIn));
+            if (specialBOGO.ContainsKey(nameIn))
+                throw new ArgumentException($"A BOGO for {nameIn} already exists. Remove this entry before creating a new one.");
+            else if (specialMarkDown.ContainsKey(nameIn))
+                throw new ArgumentException($"A mark-down for {nameIn} already exists. Remove this entry before creating a new one.");
+            else if (specialNforX.ContainsKey(nameIn))
+                throw new ArgumentException($"An N for X special for {nameIn} already exists. Remove this entry before creating a new one.");
+            else
+                specialNforX.Add(nameIn, new NforX(nameIn, getCountIn, getPriceIn, buyLimitIn));
         }
 
         public void RemoveMarkDown(string nameIn)

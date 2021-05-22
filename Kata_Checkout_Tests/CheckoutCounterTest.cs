@@ -81,14 +81,22 @@ namespace Kata_Checkout_Tests
             Assert.Throws<ArgumentException>(() => testCounter.AddMarkDown(name1, markDown1));
         }
 
-        [TestCase("apple", 25, "apple", 10)]
-        public void SpecialMarkDown_DuplicateException(string name1, double markDown1, string name2, double markDown2)
+        [TestCase("apple")]
+        [TestCase("apple", "BOGO")]
+        [TestCase("apple", "NforX")]
+        public void SpecialMarkDown_DuplicateException(string name1, string type = "")
         {
             ItemList testList = new ItemList();
             CheckoutCounter testCounter = new CheckoutCounter();
 
-            testCounter.AddMarkDown(name1, markDown1);
-            Assert.Throws<ArgumentException>(() => testCounter.AddMarkDown(name2, markDown2));
+            if (type == "BOGO")
+                testCounter.AddBOGO(name1, 2, 1, 1);
+            else if (type == "NforX")
+                testCounter.AddNforX(name1, 2, 1);
+            else
+                testCounter.AddMarkDown(name1, 1);
+
+            Assert.Throws<ArgumentException>(() => testCounter.AddMarkDown(name1, 1));
         }
 
         [TestCase("", 1, 1, 100)]
@@ -104,14 +112,22 @@ namespace Kata_Checkout_Tests
             Assert.Throws<ArgumentException>(() => testCounter.AddBOGO(name1, buyCount1, getCount1, markDown1, buyLimit1));
         }
 
-        [TestCase("apple", 1, 1, 100, 3)]
-        public void AddBOGO_DuplicateException(string name1, double buyCount1, double getCount1, double markDown1, double buyLimit1 = 0)
+        [TestCase("apple", "MarkDown")]
+        [TestCase("apple", "NforX")]
+        [TestCase("apple")]
+        public void AddBOGO_DuplicateException(string name1, string type = "")
         {
             ItemList testList = new ItemList();
             CheckoutCounter testCounter = new CheckoutCounter();
 
-            testCounter.AddBOGO(name1, buyCount1, getCount1, markDown1, buyLimit1);
-            Assert.Throws<ArgumentException>(() => testCounter.AddBOGO(name1, buyCount1, getCount1, markDown1, buyLimit1));
+            if (type == "MarkDown")
+                testCounter.AddMarkDown(name1, 1);
+            else if (type == "NforX")
+                testCounter.AddNforX(name1, 2, 1);
+            else
+                testCounter.AddBOGO(name1, 1, 1, 1);
+
+            Assert.Throws<ArgumentException>(() => testCounter.AddBOGO(name1, 1, 1, 1));
         }
 
         [TestCase("", 1, 1)]
@@ -126,14 +142,22 @@ namespace Kata_Checkout_Tests
             Assert.Throws<ArgumentException>(() => testCounter.AddNforX(name1, getCount1, getPrice1, buyLimit1));
         }
 
-        [TestCase("apple", 1, 1, 3)]
-        public void AddNforX_DuplicateException(string name1, double getCount1, double getPrice1, double buyLimit1 = 0)
+        [TestCase("apple")]
+        [TestCase("apple", "MarkDown")]
+        [TestCase("apple", "BOGO")]
+        public void AddNforX_DuplicateException(string name1, string type = "")
         {
             ItemList testList = new ItemList();
             CheckoutCounter testCounter = new CheckoutCounter();
 
-            testCounter.AddBOGO(name1, getCount1, getPrice1, buyLimit1);
-            Assert.Throws<ArgumentException>(() => testCounter.AddBOGO(name1, getCount1, getPrice1, buyLimit1));
+            if (type == "MarkDown")
+                testCounter.AddMarkDown(name1, 1);
+            else if (type == "BOGO")
+                testCounter.AddBOGO(name1, 2, 1, 1);
+            else
+                 testCounter.AddNforX(name1, 1, 1);
+
+            Assert.Throws<ArgumentException>(() => testCounter.AddNforX(name1, 1, 1));
         }
 
         [TestCase("apple", 50)]
@@ -242,29 +266,30 @@ namespace Kata_Checkout_Tests
             Assert.AreEqual(sum, testCounter.CustomerTotal);
         }
 
-       /* [TestCase("apple", 1.00, "orange", 1.50, 2.50)]
-
+        [TestCase("apple", 1.00, "orange", 1.50, 4.00, 1, 2, 50)]
+        [TestCase("apple", 1.00, "orange", 1.50, 6.50, 2, 4, 50)]
         public void AddItemValue_BOGO_Success(string name1, double val1, string name2, double val2, double sum, double getCountIn, double buyCountIn,
             double markDownIn, bool weighted1 = false, double weight1 = 0, bool weighted2 = false, double weight2 = 0)
         {
             ItemList testList = new ItemList();
             CheckoutCounter testCounter = new CheckoutCounter();
 
-            testCounter.AddBOGO("apple", getCountIn, buyCountIn, markDownIn);
+            testCounter.AddBOGO(name1, buyCountIn, getCountIn, markDownIn);
 
             testList.AddItem(name1, val1, weighted1);
             testList.AddItem(name2, val2, weighted2);
 
-            for (int i = 0; i < getCountIn; i++)
+            for (int i = 0; i < getCountIn+buyCountIn; i++)
             {
                 testCounter.AddItemValue(name1, testList, weight1);
+                Console.WriteLine(testCounter.CustomerTotal);
             }
             
-            testCounter.AddItemValue(name1, testList, weight1);
             testCounter.AddItemValue(name2, testList, weight2);
+            Console.WriteLine(testCounter.CustomerTotal);
 
             Assert.AreEqual(sum, testCounter.CustomerTotal);
-        }*/
+        }
 
     }
 }
