@@ -19,7 +19,7 @@ namespace Kata_Checkout
             {
                 if (specialMarkDown.ContainsKey(name))
                 {
-                    if ((specialMarkDown[name].BuyLimit < specialMarkDown[name].UsedCount) || (specialMarkDown[name].BuyLimit == 0))
+                    if ((specialMarkDown[name].UsedCount < specialMarkDown[name].BuyLimit) || (specialMarkDown[name].BuyLimit == 0))
                     {
                         double discount = 1 - (specialMarkDown[name].MarkDown / 100);
                         customerTotal += inputList.GetValue(name, weight, discount);
@@ -35,7 +35,7 @@ namespace Kata_Checkout
 
                     //Compare the special count against floored (used/buy)*get. This tells you how many marked down items you should have at any given point.
                     if ((specialBOGO[name].SpecialCount < (Math.Floor((specialBOGO[name].UsedCount/specialBOGO[name].BuyCount))*specialBOGO[name].GetCount)) &&
-                          ((specialBOGO[name].SpecialCount < specialBOGO[name].BuyLimit) || (specialBOGO[name].BuyLimit == 0)))
+                          ((specialBOGO[name].UsedCount <= specialBOGO[name].BuyLimit) || (specialBOGO[name].BuyLimit == 0)))
                     {
                         double discount = 1 - (specialBOGO[name].MarkDown / 100);
                         customerTotal += inputList.GetValue(name, weight, discount);
@@ -79,7 +79,7 @@ namespace Kata_Checkout
             {
                 if (specialMarkDown.ContainsKey(name))
                 {
-                    if ((specialMarkDown[name].BuyLimit < specialMarkDown[name].UsedCount) || (specialMarkDown[name].BuyLimit == 0))
+                    if ((specialMarkDown[name].UsedCount < specialMarkDown[name].BuyLimit) || (specialMarkDown[name].BuyLimit == 0))
                     {
                         double discount = 1 - (specialMarkDown[name].MarkDown / 100);
                         customerTotal -= inputList.GetValue(name, weight, discount);
@@ -95,7 +95,7 @@ namespace Kata_Checkout
 
                     //floor the usedCount/buyCount; the -1 shows us where we're trying to go. So, if we're greater than that, we subtract special item
                     if ((specialBOGO[name].SpecialCount > (Math.Floor((specialBOGO[name].UsedCount - 1) / specialBOGO[name].BuyCount) * specialBOGO[name].GetCount)) &&
-                            (((specialBOGO[name].SpecialCount < specialBOGO[name].BuyLimit)) || (specialBOGO[name].BuyLimit == 0)))
+                            (((specialBOGO[name].UsedCount <= specialBOGO[name].BuyLimit)) || (specialBOGO[name].BuyLimit == 0)))
                     {
                         specialBOGO[name].SpecDec();
 

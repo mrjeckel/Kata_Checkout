@@ -85,7 +85,7 @@ namespace Kata_Checkout
         }
 
         //return the item value given the item name. throw an exception is a weighted item IS NOT given a weight or if a non-weighted item IS given a weight
-        public decimal GetValue(string name, double weight = 0, double discount = 0)
+        public decimal GetValue(string name, double weight = 0, double discount = -1)
         {
             if (weight < 0)
                 throw new ArgumentException($"Negative weight invalid.");
@@ -96,7 +96,7 @@ namespace Kata_Checkout
                 if (weightedItems.Contains(name))
                 {
                     if (weight > 0)
-                        if (discount > 0)
+                        if (discount >= 0)
                         {
                             return Convert.ToDecimal(Math.Round(itemPrice[name]  * discount, 2) * weight);
                         }
@@ -111,7 +111,7 @@ namespace Kata_Checkout
                         throw new ArgumentException($"{name} is not valued by weight.");
                     else
                     {
-                        if (discount > 0)
+                        if (discount >= 0)
                         {
                             return Convert.ToDecimal(Math.Round(itemPrice[name] * discount, 2));
                         }

@@ -396,8 +396,40 @@ namespace Kata_Checkout_Tests
             Assert.AreEqual(sum, testCounter.CustomerTotal);
         }
 
-        public void AddItemValue_BuyLimit_Success()
+        [TestCase("apple", 1.00, "MarkDown", 9, 3, 1, 1.00, 100, 1.00)]
+        [TestCase("apple", 1.00, "BOGO", 6, 3, 1, 1.00, 100, 10.00)]
+        [TestCase("apple", 1.00, "NforX", 9, 3, 1, 1.00, 100, 4.00)]
+        public void AddItemValue_BuyLimit_Success(string name1, double val1, string type, int buyLimit1, double buyCount1 , double getCount1, 
+            double getPrice1, double markDown1, double sum)
         {
+            ItemList testList = new ItemList();
+            CheckoutCounter testCounter = new CheckoutCounter();
+            testList.AddItem(name1, val1);
+            int temp = 0;
+
+            switch (type)
+            {
+                case "MarkDown":
+                    testCounter.AddMarkDown(name1, markDown1, buyLimit1);
+                    temp = buyLimit1 + 1;
+                    break;
+                case "NforX":
+                    testCounter.AddNforX(name1, buyCount1, getPrice1, buyLimit1);
+                    temp = Convert.ToInt32(buyLimit1 + getCount1);
+                    break;
+                case "BOGO":
+                    testCounter.AddBOGO(name1, buyCount1, getCount1, markDown1, buyLimit1);
+                    temp = Convert.ToInt32(buyLimit1 + buyLimit1/buyCount1 + buyCount1 + getCount1);
+                    break;
+            }
+
+            for (int i = 0; i < temp; i++)
+            {
+                testCounter.AddItemValue(name1, testList);
+            }
+                
+
+            Assert.AreEqual(sum, testCounter.CustomerTotal);
 
         }
 
