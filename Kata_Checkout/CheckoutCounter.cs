@@ -9,8 +9,7 @@ namespace Kata_Checkout
     public class CheckoutCounter
     {
         decimal customerTotal = 0;
-        Dictionary<string, double> specialMarkDown = new Dictionary<string, double>();
-        Dictionary<string, int> markDownLimit = new Dictionary<string, int>();
+        Dictionary<string, SpecialMarkDown> specialMarkDown = new Dictionary<string, SpecialMarkDown>();
         Dictionary<string, BOGO> specialBOGO = new Dictionary<string, BOGO>();
         Dictionary<string, NforX> specialNforX = new Dictionary<string, NforX>();
 
@@ -20,8 +19,15 @@ namespace Kata_Checkout
             {
                 if (specialMarkDown.ContainsKey(name))
                 {
-                    double discount = 1 - (specialMarkDown[name] / 100);
-                    customerTotal += inputList.GetValue(name, weight, discount);
+                    if ((specialMarkDown[name].BuyLimit < specialMarkDown[name].UsedCount) || (specialMarkDown[name].BuyLimit == 0))
+                    {
+                        double discount = 1 - (specialMarkDown[name].MarkDown / 100);
+                        customerTotal += inputList.GetValue(name, weight, discount);
+                        specialMarkDown[name].Inc();
+                    }
+                    else
+                        customerTotal += inputList.GetValue(name, weight);
+
                 }
                 else if (specialBOGO.ContainsKey(name))
                 {
@@ -73,8 +79,15 @@ namespace Kata_Checkout
             {
                 if (specialMarkDown.ContainsKey(name))
                 {
-                    double discount = 1 - (specialMarkDown[name] / 100);
-                    customerTotal -= inputList.GetValue(name, weight, discount);
+                    if ((specialMarkDown[name].BuyLimit < specialMarkDown[name].UsedCount) || (specialMarkDown[name].BuyLimit == 0))
+                    {
+                        double discount = 1 - (specialMarkDown[name].MarkDown / 100);
+                        customerTotal -= inputList.GetValue(name, weight, discount);
+                        specialMarkDown[name].Dec();
+                    }
+                    else
+                        customerTotal -= inputList.GetValue(name, weight);
+
                 }
                 else if (specialBOGO.ContainsKey(name))
                 {
@@ -123,15 +136,9 @@ namespace Kata_Checkout
                 throw new KeyNotFoundException($"{name} was not found in inventory.");
         }
 
-        public void AddMarkDown(string nameIn, double markDownIn)
+        public void AddMarkDown(string nameIn, double markDownIn, double buyLimitIn = 0)
         {
-            nameIn.Trim();
-
-            if (String.IsNullOrEmpty(nameIn))
-                throw new ArgumentException($"Name can not be a null or empty value.");
-            else if (markDownIn <= 0)
-                throw new ArgumentException($"Markdown value must be greater than zero.");
-            else if (specialMarkDown.ContainsKey(nameIn))
+            if (specialMarkDown.ContainsKey(nameIn))
                 throw new ArgumentException($"A markdown for {nameIn} already exists. Remove this entry before creating a new one.");
             else if (specialBOGO.ContainsKey(nameIn))
                 throw new ArgumentException($"A BOGO for {nameIn} already exists. Remove this entry before creating a new one.");
@@ -140,7 +147,7 @@ namespace Kata_Checkout
             else if (specialNforX.ContainsKey(nameIn))
                 throw new ArgumentException($"An N for X special for {nameIn} already exists. Remove this entry before creating a new one.");
             else
-                specialMarkDown.Add(nameIn, markDownIn);
+                specialMarkDown.Add(nameIn, new SpecialMarkDown(nameIn, markDownIn, buyLimitIn));
         }
 
         public void AddBOGO(string nameIn, double buyCountIn, double getCountIn, double markDownIn, double buyLimitIn = 0)

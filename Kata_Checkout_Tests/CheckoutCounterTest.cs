@@ -396,5 +396,10 @@ namespace Kata_Checkout_Tests
             Assert.AreEqual(sum, testCounter.CustomerTotal);
         }
 
+        public void AddItemValue_BuyLimit_Success()
+        {
+
+        }
+
     }
 }
