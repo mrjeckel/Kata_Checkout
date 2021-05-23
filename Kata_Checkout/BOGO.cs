@@ -52,6 +52,8 @@ namespace Kata_Checkout
 
         public void Dec()
         {
+            if (usedCount == 0)
+                throw new InvalidOperationException("Number of items in BOGO can not be less than zero.");
             usedCount--;
         }
 
@@ -62,6 +64,8 @@ namespace Kata_Checkout
 
         public void SpecDec()
         {
+            if (specialCount == 0)
+                throw new InvalidOperationException("Number of marked down items in BOGO can not be less than zero.");
             specialCount--;
         }
 
@@ -82,6 +86,11 @@ namespace Kata_Checkout
         public double MarkDown
         {
             get { return markDown; }
+        }
+
+        public double BuyLimit
+        {
+            get { return buyLimit; }
         }
         public int UsedCount
         {

@@ -38,6 +38,18 @@ namespace Kata_Checkout
                 throw new ArgumentException($"Buy limit can not be negative.");
         }
 
+        public void Inc()
+        {
+                usedCount++;
+        }
+
+        public void Dec()
+        {
+            if (usedCount == 0)
+                throw new InvalidOperationException("Number of items in NforX can not be less than zero.");
+            usedCount--;
+        }
+
         public string Name
         {
             get { return name; }
@@ -56,5 +68,10 @@ namespace Kata_Checkout
         {
             get { return usedCount; }
         }
+        public double BuyLimit
+        {
+            get { return buyLimit; }
+        }
+
     }
 }

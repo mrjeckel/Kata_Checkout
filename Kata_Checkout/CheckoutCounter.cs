@@ -10,6 +10,7 @@ namespace Kata_Checkout
     {
         decimal customerTotal = 0;
         Dictionary<string, double> specialMarkDown = new Dictionary<string, double>();
+        Dictionary<string, int> markDownLimit = new Dictionary<string, int>();
         Dictionary<string, BOGO> specialBOGO = new Dictionary<string, BOGO>();
         Dictionary<string, NforX> specialNforX = new Dictionary<string, NforX>();
 
@@ -27,7 +28,8 @@ namespace Kata_Checkout
                     //Console.WriteLine($"used:{specialBOGO[name].UsedCount}, buy:{specialBOGO[name].BuyCount}, get:{specialBOGO[name].GetCount}, spec:{specialBOGO[name].SpecialCount}");
 
                     //Compare the special count against floored (used/buy)*get. This tells you how many marked down items you should have at any given point.
-                    if (specialBOGO[name].SpecialCount < (Math.Floor((specialBOGO[name].UsedCount/specialBOGO[name].BuyCount))*specialBOGO[name].GetCount))
+                    if ((specialBOGO[name].SpecialCount < (Math.Floor((specialBOGO[name].UsedCount/specialBOGO[name].BuyCount))*specialBOGO[name].GetCount)) &&
+                          ((specialBOGO[name].SpecialCount < specialBOGO[name].BuyLimit) || (specialBOGO[name].BuyLimit == 0)))
                     {
                         double discount = 1 - (specialBOGO[name].MarkDown / 100);
                         customerTotal += inputList.GetValue(name, weight, discount);
@@ -39,6 +41,22 @@ namespace Kata_Checkout
                         customerTotal += inputList.GetValue(name, weight);
                         specialBOGO[name].Inc();
                     }
+                }
+                else if (specialNforX.ContainsKey(name))
+                {
+                    specialNforX[name].Inc();
+
+                    //check if the current count is eligible for discount. <= is used because we preincrement here
+                    if (((specialNforX[name].UsedCount % specialNforX[name].GetCount) == 0) && ((specialNforX[name].UsedCount <= specialNforX[name].BuyLimit) ||
+                            (specialNforX[name].BuyLimit == 0)))
+                    {
+                        for (int i = 0; i < specialNforX[name].GetCount - 1; i++)
+                            customerTotal -= inputList.GetValue(name, weight);
+
+                        customerTotal += Convert.ToDecimal(specialNforX[name].GetPrice);
+                    }
+                    else
+                        customerTotal += inputList.GetValue(name, weight); 
                 }
                 else
                     customerTotal += inputList.GetValue(name, weight);
@@ -60,20 +78,43 @@ namespace Kata_Checkout
                 }
                 else if (specialBOGO.ContainsKey(name))
                 {
+                    //Console.WriteLine($"used:{specialBOGO[name].UsedCount}, buy:{specialBOGO[name].BuyCount}, get:{specialBOGO[name].GetCount}, special:{specialBOGO[name].SpecialCount}");
 
-                    Console.WriteLine($"used:{specialBOGO[name].UsedCount}, buy:{specialBOGO[name].BuyCount}, get:{specialBOGO[name].GetCount}, special:{specialBOGO[name].SpecialCount}");
-                    if (specialBOGO[name].SpecialCount > (Math.Floor((specialBOGO[name].UsedCount - 1) / specialBOGO[name].BuyCount) * specialBOGO[name].GetCount))
+                    //floor the usedCount/buyCount; the -1 shows us where we're trying to go. So, if we're greater than that, we subtract special item
+                    if ((specialBOGO[name].SpecialCount > (Math.Floor((specialBOGO[name].UsedCount - 1) / specialBOGO[name].BuyCount) * specialBOGO[name].GetCount)) &&
+                            (((specialBOGO[name].SpecialCount < specialBOGO[name].BuyLimit)) || (specialBOGO[name].BuyLimit == 0)))
                     {
+                        specialBOGO[name].SpecDec();
+
                         double discount = 1 - (specialBOGO[name].MarkDown / 100);
                         customerTotal -= inputList.GetValue(name, weight, discount);
+                    }
+                    else
+                    {
+                        specialBOGO[name].Dec();
 
-                        specialBOGO[name].SpecDec();
+                        customerTotal -= inputList.GetValue(name, weight);
+                    }
+                }
+                else if (specialNforX.ContainsKey(name))
+                {
+                    specialNforX[name].Dec();
+
+                    //Console.WriteLine($"count: {specialNforX[name].UsedCount}");
+                    //adding 1 to usedcount checks if the previous value was applicable for a special discount. coming down from that means we have to take it away
+                    if ((((specialNforX[name].UsedCount + 1) % specialNforX[name].GetCount) == 0) && ((specialNforX[name].UsedCount <= specialNforX[name].BuyLimit) ||
+                            (specialNforX[name].BuyLimit == 0)))
+                    {
+                        customerTotal -= Convert.ToDecimal(specialNforX[name].GetPrice);
+
+                        for (int i = 0; i < specialNforX[name].GetCount - 1; i++)
+                            customerTotal += inputList.GetValue(name, weight);
                     }
                     else
                     {
                         customerTotal -= inputList.GetValue(name, weight);
-                        specialBOGO[name].Dec();
                     }
+                        
                 }
                 else
                     customerTotal -= inputList.GetValue(name, weight);
