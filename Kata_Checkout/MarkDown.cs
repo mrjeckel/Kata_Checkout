@@ -11,7 +11,7 @@ namespace Kata_Checkout
         string name = "";
         double markDown = 0;
         double buyLimit = 0;
-        int usedCount = 0;
+        double usedCount = 0;
 
         public SpecialMarkDown(string name1, double markDown1, double buyLimit1 = 0)
         {
@@ -32,16 +32,16 @@ namespace Kata_Checkout
                 throw new ArgumentException($"Buy limit can not be negative.");
         }
 
-        public void Inc()
+        public void Inc(double i)
         {
-                usedCount++;
+                usedCount += i;
         }
 
-        public void Dec()
+        public void Dec(double i)
         {
             if (usedCount == 0)
                 throw new InvalidOperationException("Number of items in mark-down can not be less than zero.");
-            usedCount--;
+            usedCount -= i;
         }
 
         public string Name

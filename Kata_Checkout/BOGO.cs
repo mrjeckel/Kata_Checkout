@@ -13,8 +13,8 @@ namespace Kata_Checkout
         double getCount = 0;
         double markDown = 0;
         double buyLimit = 0;
-        int usedCount = 0;
-        int specialCount = 0;
+        double usedCount = 0;
+        double specialCount = 0;
 
         public BOGO(string name1, double buyCount1, double getCount1, double markDown1, double buyLimit1 = 0)
         {
@@ -45,28 +45,28 @@ namespace Kata_Checkout
                 throw new ArgumentException($"Buy limit can not be negative.");
         }
 
-        public void Inc()
+        public void Inc(double i)
         {
-            usedCount++;
+            usedCount += i;
         }
 
-        public void Dec()
+        public void Dec(double i)
         {
             if (usedCount == 0)
                 throw new InvalidOperationException("Number of items in BOGO can not be less than zero.");
-            usedCount--;
+            usedCount -= i;
         }
 
-        public void SpecInc()
+        public void SpecInc(double i)
         {
-            specialCount++;
+            specialCount += i;
         }
 
-        public void SpecDec()
+        public void SpecDec(double i)
         {
             if (specialCount == 0)
                 throw new InvalidOperationException("Number of marked down items in BOGO can not be less than zero.");
-            specialCount--;
+            specialCount -= i;
         }
 
         public string Name
@@ -92,11 +92,11 @@ namespace Kata_Checkout
         {
             get { return buyLimit; }
         }
-        public int UsedCount
+        public double UsedCount
         {
             get { return usedCount; }
         }
-        public int SpecialCount
+        public double SpecialCount
         {
             get { return specialCount; }
         }

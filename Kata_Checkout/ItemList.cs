@@ -96,12 +96,14 @@ namespace Kata_Checkout
                 if (weightedItems.Contains(name))
                 {
                     if (weight > 0)
+                    {
                         if (discount >= 0)
                         {
-                            return Convert.ToDecimal(Math.Round(itemPrice[name]  * discount, 2) * weight);
+                            return Convert.ToDecimal(Math.Round(itemPrice[name] * discount, 2) * weight);
                         }
                         else
                             return Convert.ToDecimal(itemPrice[name] * weight);
+                    }
                     else
                         throw new ArgumentException($"Weight not given for {name}.");
                 }

@@ -222,17 +222,17 @@ namespace Kata_Checkout_Tests
         [TestCase("apple", 0.70, "orange", 21.30, 21.66)]
         [TestCase("apple", 100.67, "orange", 406.01, 456.35)]
         [TestCase("apple", 1006.66, "orange", 2003.34, 2506.66)]
-        [TestCase("apple", 1.00, "orange", 1.50, 4.00, true, 5)]
-        [TestCase("apple", 1006.66, "orange", 2003.34, 4519.94, true, 5)]
-        [TestCase("apple", 1.00, "orange", 1.50, 10.00, true, 5, true, 5)]
-        [TestCase("apple", 1006.66, "orange", 2003.34, 12533.30, true, 5, true, 5)]
-        public void AddItemValue_MarkDown_Success(string name1, double val1, string name2, double val2, double sum,
+        [TestCase("apple", 1.00, "orange", 1.50, 9.25, 3, true, 5)]
+        [TestCase("apple", 1006.66, "orange", 2003.34, 8294.94, 5, true, 5)]
+        [TestCase("apple", 1.00, "orange", 1.50, 12.25, 7, true, 5, true, 5)]
+        [TestCase("apple", 1006.66, "orange", 2003.34, 14043.30, 8, true, 5, true, 5)]
+        public void AddItemValue_MarkDown_Success(string name1, double val1, string name2, double val2, double sum, double buyLimit1 = 0,
             bool weighted1 = false, double weight1 = 0, bool weighted2 = false, double weight2 = 0)
         {
             ItemList testList = new ItemList();
             CheckoutCounter testCounter = new CheckoutCounter();
 
-            testCounter.AddMarkDown(name1, 75);
+            testCounter.AddMarkDown(name1, 75, buyLimit1);
 
             testList.AddItem(name1, val1, weighted1);
             testList.AddItem(name2, val2, weighted2);
@@ -430,7 +430,6 @@ namespace Kata_Checkout_Tests
                 
 
             Assert.AreEqual(sum, testCounter.CustomerTotal);
-
         }
 
     }
