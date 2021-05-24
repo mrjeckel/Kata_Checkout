@@ -96,14 +96,31 @@ namespace Kata_Checkout
             {
                 if (specialMarkDown.ContainsKey(name))
                 {
-                    if ((specialMarkDown[name].UsedCount < specialMarkDown[name].BuyLimit) || (specialMarkDown[name].BuyLimit == 0))
+                    double discount = 1 - (specialMarkDown[name].MarkDown / 100);
+
+                    if ((specialMarkDown[name].UsedCount > specialMarkDown[name].BuyLimit) && (specialMarkDown[name].BuyLimit != 0))
                     {
-                        double discount = 1 - (specialMarkDown[name].MarkDown / 100);
-                        customerTotal -= inputList.GetValue(name, weight, discount);
-                        specialMarkDown[name].Dec(1);
+                        //if resultant usedCount will be less than the buy limit, we have to calculate the split between eligibile and non-eligible weight
+                        if (((specialMarkDown[name].UsedCount - weight) <= specialMarkDown[name].BuyLimit) && (specialMarkDown[name].BuyLimit > 0))
+                        {
+                            //usedCount - buyCount yields the remainder that should not be discounted
+                            customerTotal -= inputList.GetValue(name, (specialMarkDown[name].UsedCount - specialMarkDown[name].BuyLimit));
+
+                            //weight - usedCount - buyLimit yields remaining weight that needs to be calculated with discount
+                            if ((specialMarkDown[name].UsedCount - weight - specialMarkDown[name].BuyLimit) > 0)
+                                customerTotal -= inputList.GetValue(name, (weight - (specialMarkDown[name].UsedCount - specialMarkDown[name].BuyLimit)), discount);
+                        }
+                        else
+                            customerTotal -= inputList.GetValue(name, weight);
+
                     }
                     else
-                        customerTotal -= inputList.GetValue(name, weight);
+                        customerTotal -= inputList.GetValue(name, weight, discount);
+
+                    if (weight == 0)
+                        specialMarkDown[name].Dec(1);
+                    else
+                        specialMarkDown[name].Dec(weight);
 
                 }
                 else if (specialBOGO.ContainsKey(name))

@@ -243,25 +243,34 @@ namespace Kata_Checkout_Tests
             Assert.AreEqual(sum, testCounter.CustomerTotal);
         }
 
-        [TestCase("apple", 1.00, "orange", 1.50, "banana", 2.50, 4.25)]
-        [TestCase("apple", 1.00, "orange", 1.50, "banana", 2.50, 4.75, true, 3)]
-        [TestCase("apple", 1.00, "orange", 1.50, "banana", 2.50, 8.75, true, 3, true, 2, true, 2)]
-        public void SubtractItemValue_MarkDown_Success(string name1, double val1, string name2, double val2, string name3, double val3, double sum,
+        [TestCase("apple", 1.00, "orange", 1.50, "banana", 2.50, 4.25, 2)]
+        [TestCase("apple", 1.00, "orange", 1.50, "banana", 2.50, 5.50, 2, true, 3)]
+        [TestCase("apple", 1.00, "orange", 1.50, "banana", 2.50, 9.50, 2, true, 3, true, 2, true, 2)]
+        public void SubtractItemValue_MarkDown_Success(string name1, double val1, string name2, double val2, string name3, double val3, double sum, double buyLimit1 = 0,
             bool weighted1 = false, double weight1 = 0, bool weighted2 = false, double weight2 = 0, bool weighted3 = false, double weight3 = 0)
         {
             ItemList testList = new ItemList();
             CheckoutCounter testCounter = new CheckoutCounter();
 
-            testCounter.AddMarkDown(name1, 75);
+            testCounter.AddMarkDown(name1, 75, buyLimit1);
 
             testList.AddItem(name1, val1, weighted1);
             testList.AddItem(name2, val2, weighted2);
             testList.AddItem(name3, val3, weighted3);
-            testCounter.AddItemValue(name1, testList, weight1);
-            testCounter.AddItemValue(name1, testList, weight1);
+
+            for (double i  = 0; i < buyLimit1 * 2; i++)
+            {
+                testCounter.AddItemValue(name1, testList, weight1);
+            }
+            
             testCounter.AddItemValue(name2, testList, weight2);
             testCounter.AddItemValue(name3, testList, weight3);
-            testCounter.SubtractItemValue(name1, testList, weight1);
+
+            for (double i = buyLimit1 * 2; i >= buyLimit1; i--)
+            {
+                testCounter.SubtractItemValue(name1, testList, weight1);
+            }
+
 
             Assert.AreEqual(sum, testCounter.CustomerTotal);
         }
