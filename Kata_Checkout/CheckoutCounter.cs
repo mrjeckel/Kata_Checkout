@@ -205,14 +205,14 @@ namespace Kata_Checkout
                         double specialCount = specialBOGO[name].SpecialCount;
 
                         //compare groups of usedCount against groups of specialCount. If equal, then we another group of normal items
-                        if ((Math.Floor(usedCount / buyCount) == Math.Floor(specialCount / getCount)) && ((usedCount <= buyLimit) || (buyLimit == 0)))
+                        if ((Math.Ceiling(usedCount / buyCount) == Math.Ceiling(specialCount / getCount)) && ((usedCount <= buyLimit) || (buyLimit == 0)))
                         {
                             //if we're in between groups of specials, add the remainder to make a full group
                             if (((specialCount % getCount) != 0) && (tempWeight >= (getCount - (specialCount % getCount))))
                             {
-                                customerTotal -= inputList.GetValue(name, getCount - (specialCount % getCount), discount);
-                                specialBOGO[name].SpecDec(getCount - (specialCount % getCount));
-                                tempWeight -= getCount - (specialCount % getCount);
+                                customerTotal -= inputList.GetValue(name, specialCount % getCount, discount);
+                                specialBOGO[name].SpecDec(specialCount % getCount);
+                                tempWeight -= specialCount % getCount;
                             }
                             //if we have a full group, add another full group
                             else if (tempWeight >= getCount)
@@ -228,7 +228,7 @@ namespace Kata_Checkout
                                 specialBOGO[name].SpecDec(tempWeight);
                                 tempWeight = 0;
                             }
-                            Console.WriteLine($"special: used:{specialBOGO[name].UsedCount} spec:{specialBOGO[name].SpecialCount} temp:{tempWeight} total:{customerTotal}");
+                           //Console.WriteLine($"special: used:{specialBOGO[name].UsedCount} spec:{specialBOGO[name].SpecialCount} temp:{tempWeight} total:{customerTotal}");
                         }
 
                         //break if we ran out of items
@@ -238,9 +238,9 @@ namespace Kata_Checkout
                             //if we're in between making another full set of normal items, add the difference
                             if (((usedCount % buyCount) != 0) && (tempWeight >= (buyCount - (usedCount % buyCount))))
                             {
-                                customerTotal -= inputList.GetValue(name, buyCount - (usedCount % buyCount));
-                                specialBOGO[name].Dec(buyCount - (usedCount % buyCount));
-                                tempWeight -= buyCount - (usedCount % buyCount);
+                                customerTotal -= inputList.GetValue(name, usedCount % buyCount);
+                                specialBOGO[name].Dec(usedCount % buyCount);
+                                tempWeight -= usedCount % buyCount;
                             }
                             //if we're at a clean break with our normal item groups, then we just add one group if we have the weight
                             else if (tempWeight >= buyCount)
@@ -256,7 +256,7 @@ namespace Kata_Checkout
                                 specialBOGO[name].Dec(tempWeight);
                                 tempWeight = 0;
                             }
-                        Console.WriteLine($"normal: used:{specialBOGO[name].UsedCount} spec:{specialBOGO[name].SpecialCount} temp:{tempWeight} total:{customerTotal}");
+                            //Console.WriteLine($"normal: used:{specialBOGO[name].UsedCount} spec:{specialBOGO[name].SpecialCount} temp:{tempWeight} total:{customerTotal}");
                     }
                 }
                 else if (specialNforX.ContainsKey(name))

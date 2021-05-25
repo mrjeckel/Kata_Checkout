@@ -310,8 +310,8 @@ namespace Kata_Checkout_Tests
 
         [TestCase("apple", 1.00, "orange", 1.50, "banana", 2.50, 6.00, 1, 2, 75)]
         [TestCase("apple", 1.00, "orange", 1.50, "banana", 2.50, 8.25, 2, 4, 75, 3)]
-        [TestCase("apple", 1006.66, "orange", 2003.34, "banana", 2.50, 7240.48, 2, 2, 40, 3, true, 2)]
-        [TestCase("apple", 1006.66, "orange", 2003.34, "banana", 2.50, 11247.16, 2, 2, 40, 3, true, 2, true, 3)]
+        [TestCase("apple", 1006.66, "orange", 2003.34, "banana", 2.50, 9253.80, 2, 3, 40, 3, true, 2)]
+        [TestCase("apple", 1006.66, "orange", 2003.34, "banana", 2.50, 13260.48, 2, 3, 40, 3, true, 2, true, 3)]
         public void SubtractItemValue_BOGO_Success(string name1, double val1, string name2, double val2, string name3, double val3, double sum,
                 double getCountIn, double buyCountIn, double markDownIn, int iterations = 1, bool weighted1 = false, double weight1 = 0, bool weighted2 = false, 
                 double weight2 = 0, bool weighted3 = false, double weight3 = 0)
