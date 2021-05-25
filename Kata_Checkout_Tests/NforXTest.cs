@@ -10,6 +10,14 @@ namespace Kata_Checkout_Tests
 {
     class NforXTest
     {
-
+        [TestCase("", 1, 1, 25)]
+        [TestCase("meat", 0, 1, 25)]
+        [TestCase("meat", 1, 0, 25)]
+        [TestCase("meat", 1, 1, 0)]
+        [TestCase("meat", 1, 1, 1, -1)]
+        public void CreateNforX_ThrowException(string name, double buyCount, double getCount, double markDown, double buyLimit = 0)
+        {
+            Assert.Throws<ArgumentException>(() => new BOGO(name, buyCount, getCount, markDown, buyLimit));
+        }
     }
 }
