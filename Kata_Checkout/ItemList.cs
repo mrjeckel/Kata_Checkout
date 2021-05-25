@@ -109,7 +109,7 @@ namespace Kata_Checkout
                 }
                 else
                 {
-                    if (weight > 0)
+                    if (weight > 1)
                         throw new ArgumentException($"{name} is not valued by weight.");
                     else
                     {

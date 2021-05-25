@@ -50,20 +50,82 @@ namespace Kata_Checkout
                 {
                     //Console.WriteLine($"used:{specialBOGO[name].UsedCount}, buy:{specialBOGO[name].BuyCount}, get:{specialBOGO[name].GetCount}, spec:{specialBOGO[name].SpecialCount}");
 
-                    //Compare the special count against floored (used/buy)*get. This tells you how many marked down items you should have at any given point.
-                    if ((specialBOGO[name].SpecialCount < (Math.Floor((specialBOGO[name].UsedCount/specialBOGO[name].BuyCount))*specialBOGO[name].GetCount)) &&
-                          ((specialBOGO[name].UsedCount <= specialBOGO[name].BuyLimit) || (specialBOGO[name].BuyLimit == 0)))
-                    {
-                        double discount = 1 - (specialBOGO[name].MarkDown / 100);
-                        customerTotal += inputList.GetValue(name, weight, discount);
+                    double tempWeight = weight;
+                    double getCount = specialBOGO[name].GetCount;
+                    double buyCount = specialBOGO[name].BuyCount;
+                    double buyLimit = specialBOGO[name].BuyLimit;
+                    double discount = 1 - (specialBOGO[name].MarkDown / 100);
 
-                        specialBOGO[name].SpecInc(1);
-                    }
-                    else
+                    if (weight == 0)
+                        tempWeight = 1;
+
+                    while (tempWeight > 0)
                     {
-                        customerTotal += inputList.GetValue(name, weight);
-                        specialBOGO[name].Inc(1);
+
+                        double usedCount = specialBOGO[name].UsedCount;
+                        double specialCount = specialBOGO[name].SpecialCount;
+
+                        //compare groups of usedCount against groups of specialCount. If equal, then we another group of normal items
+                        if ((Math.Floor(usedCount / buyCount) == Math.Floor(specialCount / getCount)) || ((usedCount > buyLimit) && (buyLimit != 0)))
+                        {
+                            //if we're in between making another full set of normal items, add the difference
+                            if (((usedCount % buyCount) != 0) && (tempWeight >= (buyCount - (usedCount % buyCount))))
+                            {
+                                customerTotal += inputList.GetValue(name, buyCount - (usedCount % buyCount));
+                                specialBOGO[name].Inc(buyCount - (usedCount % buyCount));
+                                tempWeight -= buyCount - (usedCount % buyCount);
+                            }
+                            //if we're at a clean break with our normal item groups, then we just add one group if we have the weight
+                            else if (tempWeight >= buyCount)
+                            {
+                                customerTotal += inputList.GetValue(name, buyCount);
+                                specialBOGO[name].Inc(buyCount);
+                                tempWeight -= buyCount;
+                            }
+                            //we don't have enough weight to make a full group, so just add what we have
+                             else
+                            {
+                                customerTotal += inputList.GetValue(name, tempWeight);
+                                specialBOGO[name].Inc(tempWeight);
+                                tempWeight = 0;
+                            }
+                            //Console.WriteLine($"normal: used:{specialBOGO[name].UsedCount} spec:{specialBOGO[name].SpecialCount} temp:{tempWeight} total:{customerTotal}");
+                        }
+
+                        //break if we ran out of items
+                        if (tempWeight == 0)
+                            break;
+
+                        //if we make it here, we've added enough to make another normal group and are eligibile for a special
+                        if ((usedCount <= buyLimit) || (buyLimit == 0))
+                        {
+                            //if we're in between groups of specials, add the remainder to make a full group
+                            if (((specialCount % getCount) != 0) && (tempWeight >= (getCount - (specialCount % getCount))))
+                            {
+                                customerTotal += inputList.GetValue(name, getCount - (specialCount % getCount), discount);
+                                specialBOGO[name].SpecInc(getCount - (specialCount % getCount));
+                                tempWeight -= getCount - (specialCount % getCount);
+                            }
+                            //if we have a full group, add another full group
+                            else if (tempWeight >= getCount)
+                            {
+                                customerTotal += inputList.GetValue(name, getCount, discount);
+                                specialBOGO[name].SpecInc(getCount);
+                                tempWeight -= getCount;
+                            }
+                            //we don't have enough to make a full group, so just add what we have
+                            else
+                            {
+                                customerTotal += inputList.GetValue(name, tempWeight, discount);
+                                specialBOGO[name].SpecInc(tempWeight);
+                                tempWeight = 0;
+                            }
+                           //Console.WriteLine($"special: used:{specialBOGO[name].UsedCount} spec:{specialBOGO[name].SpecialCount} temp:{tempWeight} total:{customerTotal}");
+                        }
                     }
+
+
+
                 }
                 else if (specialNforX.ContainsKey(name))
                 {
@@ -98,15 +160,15 @@ namespace Kata_Checkout
                 {
                     double discount = 1 - (specialMarkDown[name].MarkDown / 100);
 
-                    if ((specialMarkDown[name].UsedCount > specialMarkDown[name].BuyLimit) && (specialMarkDown[name].BuyLimit != 0))
+                    if ((specialMarkDown[name].UsedCount > specialMarkDown[name].BuyLimit) || (specialMarkDown[name].BuyLimit == 0))
                     {
                         //if resultant usedCount will be less than the buy limit, we have to calculate the split between eligibile and non-eligible weight
                         if (((specialMarkDown[name].UsedCount - weight) <= specialMarkDown[name].BuyLimit) && (specialMarkDown[name].BuyLimit > 0))
                         {
-                            //usedCount - buyCount yields the remainder that should not be discounted
+                            //buyLimit - usedCount yields the remainder that can be discounted
                             customerTotal -= inputList.GetValue(name, (specialMarkDown[name].UsedCount - specialMarkDown[name].BuyLimit));
 
-                            //weight - usedCount - buyLimit yields remaining weight that needs to be calculated with discount
+                            //weight - usedCount - buyLimit yields remaining weight that needs to be calculated with any discount
                             if ((specialMarkDown[name].UsedCount - weight - specialMarkDown[name].BuyLimit) > 0)
                                 customerTotal -= inputList.GetValue(name, (weight - (specialMarkDown[name].UsedCount - specialMarkDown[name].BuyLimit)), discount);
                         }

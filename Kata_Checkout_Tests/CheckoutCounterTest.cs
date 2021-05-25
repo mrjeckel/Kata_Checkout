@@ -299,9 +299,11 @@ namespace Kata_Checkout_Tests
             for (int i = 0; i < getCountIn+buyCountIn; i++)
             {
                 testCounter.AddItemValue(name1, testList, weight1);
+                Console.WriteLine(testCounter.CustomerTotal);
             }
             
             testCounter.AddItemValue(name2, testList, weight2);
+            Console.WriteLine(testCounter.CustomerTotal);
 
             Assert.AreEqual(sum, testCounter.CustomerTotal);
         }
@@ -435,6 +437,7 @@ namespace Kata_Checkout_Tests
             for (int i = 0; i < temp; i++)
             {
                 testCounter.AddItemValue(name1, testList);
+                Console.WriteLine(testCounter.CustomerTotal);
             }
                 
 
