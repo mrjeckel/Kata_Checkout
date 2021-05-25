@@ -187,22 +187,76 @@ namespace Kata_Checkout
                 }
                 else if (specialBOGO.ContainsKey(name))
                 {
-                    //Console.WriteLine($"used:{specialBOGO[name].UsedCount}, buy:{specialBOGO[name].BuyCount}, get:{specialBOGO[name].GetCount}, special:{specialBOGO[name].SpecialCount}");
+                    //Console.WriteLine($"used:{specialBOGO[name].UsedCount}, buy:{specialBOGO[name].BuyCount}, get:{specialBOGO[name].GetCount}, spec:{specialBOGO[name].SpecialCount}");
 
-                    //floor the usedCount/buyCount; the -1 shows us where we're trying to go. So, if we're greater than that, we subtract special item
-                    if ((specialBOGO[name].SpecialCount > (Math.Floor((specialBOGO[name].UsedCount - 1) / specialBOGO[name].BuyCount) * specialBOGO[name].GetCount)) &&
-                            (((specialBOGO[name].UsedCount <= specialBOGO[name].BuyLimit)) || (specialBOGO[name].BuyLimit == 0)))
+                    double tempWeight = weight;
+                    double getCount = specialBOGO[name].GetCount;
+                    double buyCount = specialBOGO[name].BuyCount;
+                    double buyLimit = specialBOGO[name].BuyLimit;
+                    double discount = 1 - (specialBOGO[name].MarkDown / 100);
+
+                    if (weight == 0)
+                        tempWeight = 1;
+
+                    while (tempWeight > 0)
                     {
-                        specialBOGO[name].SpecDec(1);
 
-                        double discount = 1 - (specialBOGO[name].MarkDown / 100);
-                        customerTotal -= inputList.GetValue(name, weight, discount);
-                    }
-                    else
-                    {
-                        specialBOGO[name].Dec(1);
+                        double usedCount = specialBOGO[name].UsedCount;
+                        double specialCount = specialBOGO[name].SpecialCount;
 
-                        customerTotal -= inputList.GetValue(name, weight);
+                        //compare groups of usedCount against groups of specialCount. If equal, then we another group of normal items
+                        if ((Math.Floor(usedCount / buyCount) == Math.Floor(specialCount / getCount)) && ((usedCount <= buyLimit) || (buyLimit == 0)))
+                        {
+                            //if we're in between groups of specials, add the remainder to make a full group
+                            if (((specialCount % getCount) != 0) && (tempWeight >= (getCount - (specialCount % getCount))))
+                            {
+                                customerTotal -= inputList.GetValue(name, getCount - (specialCount % getCount), discount);
+                                specialBOGO[name].SpecDec(getCount - (specialCount % getCount));
+                                tempWeight -= getCount - (specialCount % getCount);
+                            }
+                            //if we have a full group, add another full group
+                            else if (tempWeight >= getCount)
+                            {
+                                customerTotal -= inputList.GetValue(name, getCount, discount);
+                                specialBOGO[name].SpecDec(getCount);
+                                tempWeight -= getCount;
+                            }
+                            //we don't have enough to make a full group, so just add what we have
+                            else
+                            {
+                                customerTotal -= inputList.GetValue(name, tempWeight, discount);
+                                specialBOGO[name].SpecDec(tempWeight);
+                                tempWeight = 0;
+                            }
+                            Console.WriteLine($"special: used:{specialBOGO[name].UsedCount} spec:{specialBOGO[name].SpecialCount} temp:{tempWeight} total:{customerTotal}");
+                        }
+
+                        //break if we ran out of items
+                        if (tempWeight == 0)
+                            break;
+
+                            //if we're in between making another full set of normal items, add the difference
+                            if (((usedCount % buyCount) != 0) && (tempWeight >= (buyCount - (usedCount % buyCount))))
+                            {
+                                customerTotal -= inputList.GetValue(name, buyCount - (usedCount % buyCount));
+                                specialBOGO[name].Dec(buyCount - (usedCount % buyCount));
+                                tempWeight -= buyCount - (usedCount % buyCount);
+                            }
+                            //if we're at a clean break with our normal item groups, then we just add one group if we have the weight
+                            else if (tempWeight >= buyCount)
+                            {
+                                customerTotal -= inputList.GetValue(name, buyCount);
+                                specialBOGO[name].Dec(buyCount);
+                                tempWeight -= buyCount;
+                            }
+                            //we don't have enough weight to make a full group, so just add what we have
+                            else
+                            {
+                                customerTotal -= inputList.GetValue(name, tempWeight);
+                                specialBOGO[name].Dec(tempWeight);
+                                tempWeight = 0;
+                            }
+                        Console.WriteLine($"normal: used:{specialBOGO[name].UsedCount} spec:{specialBOGO[name].SpecialCount} temp:{tempWeight} total:{customerTotal}");
                     }
                 }
                 else if (specialNforX.ContainsKey(name))

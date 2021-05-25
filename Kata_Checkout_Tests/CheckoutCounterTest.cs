@@ -331,6 +331,8 @@ namespace Kata_Checkout_Tests
                 testCounter.AddItemValue(name1, testList, weight1);
             }
 
+            Console.WriteLine(testCounter.CustomerTotal);
+
             //remove items until total added for special is 1 shy of buyCount + getCount (1 full special - 1 item)
             for (double i = (getCountIn + buyCountIn) * iterations; i > (getCountIn + buyCountIn) - 1; i--)
             {
